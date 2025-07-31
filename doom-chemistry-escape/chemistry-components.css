@@ -1,0 +1,395 @@
+/* Chemistry Components Styling */
+
+.periodic-table {
+    display: grid;
+    grid-template-columns: repeat(18, 40px);
+    grid-template-rows: repeat(7, 40px);
+    gap: 2px;
+    background: #222;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 10px;
+}
+
+.element {
+    background: #444;
+    border: 1px solid #666;
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.element:hover {
+    background: #555;
+    border-color: #00ff00;
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+    animation: element-wiggle 0.5s ease-in-out;
+}
+
+@keyframes element-wiggle {
+    0%, 100% { transform: scale(1.1) rotate(0deg); }
+    25% { transform: scale(1.15) rotate(-3deg); }
+    75% { transform: scale(1.15) rotate(3deg); }
+}
+
+.element.selected {
+    background: #006600;
+    border-color: #00ff00;
+    color: #00ff00;
+    animation: element-selected 1s ease-in-out infinite alternate;
+}
+
+@keyframes element-selected {
+    0% { box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); }
+    100% { box-shadow: 0 0 20px rgba(0, 255, 0, 0.8); }
+}
+
+.element-number {
+    font-size: 8px;
+    color: #999;
+}
+
+.element-symbol {
+    font-size: 12px;
+    font-weight: bold;
+    color: #00ff00;
+}
+
+.element-name {
+    font-size: 6px;
+    color: #ccc;
+    text-align: center;
+}
+
+.molecular-builder {
+    background: #111;
+    border: 2px solid #666;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.molecular-canvas {
+    background: #fff;
+    border: 1px solid #666;
+    cursor: crosshair;
+}
+
+.atom-palette {
+    display: flex;
+    gap: 5px;
+    margin: 10px 0;
+}
+
+.atom-button {
+    background: #333;
+    border: 1px solid #666;
+    color: #00ff00;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+}
+
+.atom-button:hover {
+    background: #444;
+    border-color: #00ff00;
+}
+
+.atom-button.selected {
+    background: #006600;
+    border-color: #00ff00;
+}
+
+.ph-calculator {
+    background: #222;
+    border: 2px solid #00ff00;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 10px 0;
+    font-family: 'Courier New', monospace;
+}
+
+.ph-calculator h3 {
+    color: #00ff00;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    margin: 15px 0;
+}
+
+.input-group label {
+    display: block;
+    color: #00ff00;
+    margin-bottom: 5px;
+}
+
+.input-group input {
+    width: 100%;
+    background: #333;
+    border: 1px solid #666;
+    color: #00ff00;
+    padding: 8px;
+    font-family: 'Courier New', monospace;
+    border-radius: 3px;
+}
+
+.input-group input:focus {
+    border-color: #00ff00;
+    outline: none;
+}
+
+#calculate-ph {
+    background: #006600;
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    border-radius: 5px;
+    width: 100%;
+    margin: 10px 0;
+}
+
+#calculate-ph:hover {
+    background: #008800;
+}
+
+#ph-result {
+    background: #333;
+    border: 1px solid #666;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    min-height: 60px;
+    color: #00ff00;
+}
+
+.ph-scale {
+    position: relative;
+    height: 20px;
+    background: linear-gradient(to right, 
+        #ff0000 0%, #ff4400 14.3%, #ff8800 28.6%, 
+        #ffcc00 42.9%, #ffff00 50%, #ccff00 57.1%, 
+        #88ff00 71.4%, #44ff00 85.7%, #0000ff 100%);
+    border: 1px solid #666;
+    border-radius: 10px;
+    margin: 10px 0;
+}
+
+.ph-indicator {
+    position: absolute;
+    top: -5px;
+    width: 10px;
+    height: 30px;
+    background: #000;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    transition: left 0.5s ease;
+}
+
+.equation-balancer {
+    background: #222;
+    border: 2px solid #00ff00;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 10px 0;
+    font-family: 'Courier New', monospace;
+}
+
+.equation-display {
+    font-size: 18px;
+    text-align: center;
+    margin: 20px 0;
+    color: #00ff00;
+}
+
+.coefficient-input {
+    background: #333;
+    border: 1px solid #666;
+    color: #00ff00;
+    width: 40px;
+    height: 30px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    border-radius: 3px;
+    margin: 0 5px;
+}
+
+.coefficient-input:focus {
+    border-color: #00ff00;
+    outline: none;
+}
+
+.molecule-3d {
+    perspective: 1000px;
+    margin: 20px 0;
+}
+
+.molecule-container {
+    transform-style: preserve-3d;
+    animation: rotate 15s infinite linear, float-vertical 4s ease-in-out infinite alternate;
+}
+
+@keyframes float-vertical {
+    0% { transform: translateY(0px) rotateY(0deg); }
+    100% { transform: translateY(-10px) rotateY(360deg); }
+}
+
+@keyframes rotate {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
+}
+
+.atom-3d {
+    position: absolute;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+.bond-3d {
+    position: absolute;
+    background: #666;
+    transform-origin: 0 50%;
+}
+
+.chemistry-lab-background {
+    background-image: 
+        radial-gradient(circle at 20% 80%, rgba(0, 255, 0, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 0, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(0, 255, 255, 0.1) 0%, transparent 50%);
+    background-size: 200px 200px;
+    animation: lab-glow 5s ease-in-out infinite alternate;
+}
+
+@keyframes lab-glow {
+    from { opacity: 0.8; background-position: 0% 0%; }
+    to { opacity: 1; background-position: 100% 100%; }
+}
+
+.formula-input {
+    background: #333;
+    border: 2px solid #666;
+    color: #00ff00;
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    border-radius: 5px;
+    width: 100%;
+    text-align: center;
+}
+
+.formula-input:focus {
+    border-color: #00ff00;
+    outline: none;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.chemical-equation {
+    font-size: 20px;
+    color: #00ff00;
+    text-align: center;
+    margin: 20px 0;
+    font-family: 'Courier New', monospace;
+    background: #111;
+    padding: 15px;
+    border: 1px solid #666;
+    border-radius: 5px;
+}
+
+.reactant, .product {
+    display: inline-block;
+    margin: 0 10px;
+}
+
+.arrow {
+    color: #ffff00;
+    font-size: 24px;
+    margin: 0 15px;
+}
+
+.coefficient {
+    color: #ff6666;
+    font-weight: bold;
+}
+
+.element-highlight {
+    background: rgba(0, 255, 0, 0.2);
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.popup-hint {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.9);
+    color: #00ff00;
+    padding: 10px;
+    border: 1px solid #00ff00;
+    border-radius: 5px;
+    font-size: 12px;
+    z-index: 1000;
+    max-width: 200px;
+    pointer-events: none;
+    animation: hint-appear 0.3s ease-out;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+}
+
+@keyframes hint-appear {
+    0% { opacity: 0; transform: translateY(10px) scale(0.8); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.achievement-badge {
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    color: #000;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+    margin: 2px;
+    animation: badge-glow 2s ease-in-out infinite alternate, badge-bounce 3s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.achievement-badge::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: badge-shine 3s ease-in-out infinite;
+}
+
+@keyframes badge-bounce {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-3px) rotate(2deg); }
+}
+
+@keyframes badge-shine {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+}
+
+@keyframes badge-glow {
+    from { box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+    to { box-shadow: 0 0 15px rgba(255, 215, 0, 0.8); }
+}

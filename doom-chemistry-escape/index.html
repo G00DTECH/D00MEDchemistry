@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOOM Chemistry Escape Room - Interactive Educational Game</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Experience chemistry learning through an immersive 3D DOOM-style escape room. Solve chemistry puzzles, navigate through textured lab environments, and master chemical concepts in this educational gaming experience.">
+    <meta name="keywords" content="chemistry game, educational game, chemistry escape room, interactive learning, chemistry puzzles, 3D game, educational technology, chemistry education, STEM game">
+    <meta name="author" content="DOOM Chemistry Escape Room">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="DOOM Chemistry Escape Room - Interactive Chemistry Learning">
+    <meta property="og:description" content="Master chemistry through an immersive 3D escape room experience. Solve puzzles, explore textured lab environments, and learn chemical concepts in this educational DOOM-style game.">
+    <meta property="og:url" content="https://doom-chemistry-escape.netlify.app">
+    <meta property="og:site_name" content="DOOM Chemistry Escape Room">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="DOOM Chemistry Escape Room - Interactive Chemistry Learning">
+    <meta property="twitter:description" content="Experience chemistry learning through an immersive 3D DOOM-style escape room with textured environments and educational puzzles.">
+    
+    <!-- Educational Metadata -->
+    <meta name="educational-audience" content="students, teachers, chemistry learners">
+    <meta name="educational-level" content="high school, college, adult education">
+    <meta name="subject-area" content="chemistry, STEM, science education">
+    <meta name="interactivity-type" content="active">
+    <meta name="learning-resource-type" content="game, simulation, interactive">
+    
+    <!-- PWA / Mobile App Tags -->
+    <meta name="theme-color" content="#00ff00">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Chemistry Escape">
+    
+    <!-- Performance and Security -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <link rel="stylesheet" href="chemistry-components.css">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #gameCanvas {
+            display: block;
+            background: #1a1a1a;
+        }
+
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        #hud {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to top, #333, #444);
+            border-top: 2px solid #666;
+            padding: 10px;
+            box-sizing: border-box;
+            pointer-events: all;
+        }
+
+        #healthBar, #scoreBar {
+            height: 20px;
+            background: #222;
+            border: 1px solid #666;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+
+        #healthFill {
+            height: 100%;
+            background: linear-gradient(to right, #ff0000, #ffff00, #00ff00);
+            width: 100%;
+            transition: width 0.3s;
+        }
+
+        #puzzleModal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #222;
+            border: 3px solid #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            max-height: 70vh;
+            overflow-y: auto;
+            display: none;
+            pointer-events: all;
+        }
+
+        #puzzleModal h2 {
+            color: #00ff00;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .puzzle-question {
+            margin: 15px 0;
+            font-size: 16px;
+        }
+
+        .puzzle-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .puzzle-option {
+            background: #333;
+            border: 2px solid #666;
+            color: #00ff00;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .puzzle-option:hover {
+            background: #444;
+            border-color: #00ff00;
+            transform: translateX(5px);
+            box-shadow: -5px 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .puzzle-option.selected {
+            background: #006600;
+            border-color: #00ff00;
+        }
+
+        .puzzle-option.correct {
+            background: #004400;
+            border-color: #00ff00;
+            animation: correct-flash 1s ease-in-out;
+        }
+        
+        @keyframes correct-flash {
+            0%, 100% { background: #004400; transform: scale(1); }
+            50% { background: #006600; transform: scale(1.02); box-shadow: 0 0 20px rgba(0, 255, 0, 0.6); }
+        }
+
+        .puzzle-option.incorrect {
+            background: #440000;
+            border-color: #ff0000;
+            animation: incorrect-shake 0.5s ease-in-out;
+        }
+        
+        @keyframes incorrect-shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        #submitAnswer, #closePuzzle {
+            background: #006600;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #submitAnswer::before, #closePuzzle::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        #submitAnswer:hover::before, #closePuzzle:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        #submitAnswer:hover, #closePuzzle:hover {
+            background: #008800;
+            transform: scale(1.05) rotate(1deg);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+        }
+        
+        #submitAnswer:active, #closePuzzle:active {
+            transform: scale(0.95);
+            animation: button-click 0.2s ease-out;
+        }
+        
+        @keyframes button-click {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        #gameInstructions {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border: 1px solid #00ff00;
+            font-size: 12px;
+            pointer-events: all;
+        }
+
+        .controls {
+            margin: 5px 0;
+        }
+
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        #startScreen h1 {
+            font-size: 48px;
+            color: #ff0000;
+            text-shadow: 2px 2px 4px #000;
+            margin-bottom: 20px;
+        }
+
+        #startScreen h2 {
+            font-size: 24px;
+            color: #00ff00;
+            margin-bottom: 30px;
+        }
+
+        #startButton {
+            background: #006600;
+            border: 3px solid #00ff00;
+            color: #00ff00;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #startButton:hover {
+            background: #008800;
+            transform: scale(1.05) rotate(-1deg);
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.5);
+            animation: button-wiggle 0.5s ease-in-out;
+        }
+        
+        #startButton:active {
+            transform: scale(0.95);
+            animation: button-bounce 0.3s ease-out;
+        }
+        
+        @keyframes button-bounce {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1.05); }
+        }
+
+        .molecular-structure {
+            display: inline-block;
+            font-family: monospace;
+            background: #111;
+            padding: 10px;
+            border: 1px solid #666;
+            margin: 10px 0;
+        }
+
+        .equation-input {
+            background: #333;
+            color: #00ff00;
+            border: 1px solid #666;
+            padding: 5px;
+            font-family: 'Courier New', monospace;
+            width: 60px;
+            text-align: center;
+        }
+        
+        .lab-atmosphere {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 255, 255, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 0, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(0, 255, 0, 0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+            animation: lab-ambient 10s ease-in-out infinite alternate;
+        }
+        
+        /* Delightful floating molecules */
+        .floating-molecule {
+            position: fixed;
+            font-size: 24px;
+            color: #00ff88;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.7;
+            animation: float-molecule 15s linear infinite;
+        }
+        
+        @keyframes float-molecule {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+        
+        /* Celebration confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 150;
+        }
+        
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #00ff00;
+            animation: confetti-fall 3s linear forwards;
+        }
+        
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        /* Chemistry pun notifications */
+        .chemistry-pun {
+            position: fixed;
+            top: 50px;
+            right: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 25px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            z-index: 200;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            animation: pun-slide-in 0.5s ease-out, pun-pulse 2s ease-in-out infinite;
+            transform: translateX(400px);
+        }
+        
+        .chemistry-pun.show {
+            animation: pun-slide-in 0.5s ease-out forwards, pun-pulse 2s ease-in-out infinite;
+        }
+        
+        .chemistry-pun.hide {
+            animation: pun-slide-out 0.5s ease-in forwards;
+        }
+        
+        @keyframes pun-slide-in {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
+        }
+        
+        @keyframes pun-slide-out {
+            from { transform: translateX(0); }
+            to { transform: translateX(400px); }
+        }
+        
+        @keyframes pun-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Bubbling beaker animation in UI */
+        .bubbling-beaker {
+            position: absolute;
+            bottom: 120px;
+            right: 20px;
+            width: 60px;
+            height: 80px;
+            background: linear-gradient(to bottom, transparent 20%, #4ecdc4 20%, #45b7d1 100%);
+            border: 3px solid #2d3748;
+            border-radius: 0 0 30px 30px;
+            overflow: hidden;
+        }
+        
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            animation: bubble-rise 2s linear infinite;
+        }
+        
+        .bubble:nth-child(1) { width: 6px; height: 6px; left: 20%; animation-delay: 0s; }
+        .bubble:nth-child(2) { width: 8px; height: 8px; left: 60%; animation-delay: 0.5s; }
+        .bubble:nth-child(3) { width: 4px; height: 4px; left: 40%; animation-delay: 1s; }
+        .bubble:nth-child(4) { width: 7px; height: 7px; left: 70%; animation-delay: 1.5s; }
+        
+        @keyframes bubble-rise {
+            0% { bottom: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { bottom: 80px; opacity: 0; }
+        }
+        
+        /* Success celebration overlay */
+        .success-celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            background: radial-gradient(circle, rgba(0,255,0,0.1) 0%, transparent 70%);
+            opacity: 0;
+            animation: celebration-flash 1s ease-out;
+        }
+        
+        @keyframes celebration-flash {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        /* Start screen enhancements */
+        @keyframes title-glow {
+            0% { text-shadow: 2px 2px 4px #000, 0 0 10px #ff0000; }
+            100% { text-shadow: 2px 2px 4px #000, 0 0 20px #ff0000, 0 0 30px #ff0000; }
+        }
+        
+        @keyframes subtitle-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes button-wiggle {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-2deg) scale(1.05); }
+            75% { transform: rotate(2deg) scale(1.05); }
+        }
+        
+        @keyframes lab-ambient {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+            100% { opacity: 0.4; }
+        }
+        
+        .texture-info {
+            position: absolute;
+            bottom: 120px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px;
+            border: 1px solid #00ff00;
+            font-size: 10px;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .enhancement-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(45deg, #00ff00, #00aa00);
+            color: #000;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes badge-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div class="lab-atmosphere"></div>
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="startScreen">
+            <h1 style="animation: title-glow 2s ease-in-out infinite alternate;">DOOM</h1>
+            <h2 style="animation: subtitle-bounce 3s ease-in-out infinite;">Chemistry Escape Room</h2>
+            <div style="font-size: 48px; animation: float-molecule 8s ease-in-out infinite;">⚗️</div>
+            <p style="color: #666; text-align: center; max-width: 600px; margin-bottom: 30px;">
+                Navigate through the <strong>enhanced laboratory facility</strong> with textured 3D graphics! Experience realistic lab environments with 
+                metal walls, scientific equipment, and proper floor textures. Solve chemistry puzzles at interactive 3D stations including 
+                computers, microscopes, and periodic table displays. Features enhanced DOOM-style raycasting with procedural textures and 
+                chemistry-themed visuals!
+            </p>
+            <button id="startButton" style="animation: button-wiggle 2s ease-in-out infinite;">🧪 START EXPERIMENT 🧪</button>
+        </div>
+
+        <div id="ui">
+            <div class="enhancement-badge">
+                ENHANCED TEXTURES
+            </div>
+            
+            <div class="texture-info">
+                <strong>🧪 3D ENHANCEMENTS:</strong><br>
+                ✓ Textured lab walls<br>
+                ✓ 3D scientific equipment<br>
+                ✓ Realistic floor/ceiling<br>
+                ✓ Chemistry lab atmosphere<br>
+                ✨ Delightful interactions
+            </div>
+            
+            <!-- Bubbling beaker animation -->
+            <div class="bubbling-beaker">
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+            </div>
+            <div id="gameInstructions">
+                <div class="controls"><strong>ENHANCED 3D CONTROLS:</strong></div>
+                <div class="controls">W - Move Forward</div>
+                <div class="controls">S - Move Backward</div>
+                <div class="controls">A - Strafe Left</div>
+                <div class="controls">D - Strafe Right</div>
+                <div class="controls">Mouse - Look Around (Click to lock cursor)</div>
+                <div class="controls">E - Interact with 3D Lab Equipment</div>
+                <div class="controls">ESC - Show/hide instructions</div>
+                <div style="margin-top: 10px; font-size: 11px; color: #888;">
+                    <strong>🔬 ENHANCED 3D GRAPHICS 🔬</strong><br>
+                    Textured walls, 3D equipment, lab atmosphere!<br>
+                    <strong>⚗️ CHEMISTRY LAB SETTING ⚗️</strong><br>
+                    Realistic scientific instruments and environments!<br>
+                    <div style="color: #4ecdc4; margin-top: 5px;">✨ Now with extra whimsy! ✨</div>
+                </div>
+            </div>
+
+            <div id="hud">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="flex: 1;">
+                        <div>HEALTH:</div>
+                        <div id="healthBar"><div id="healthFill"></div></div>
+                    </div>
+                    <div style="flex: 1; margin-left: 20px;">
+                        <div>SCORE: <span id="score">0</span></div>
+                        <div>PUZZLES SOLVED: <span id="puzzlesSolved">0</span>/6</div>
+                    </div>
+                    <div style="flex: 1; margin-left: 20px;">
+                        <div>🗝️ KEYS: <span id="keysFound">0</span></div>
+                        <div>⏱️ TIME: <span id="gameTime">00:00</span></div>
+                        <div style="font-size: 10px; color: #888; margin-top: 5px;">
+                            ✨ 3D LAB MODE: ACTIVE ✨
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="puzzleModal">
+            <h2 id="puzzleTitle">⚗️ Chemistry Challenge ⚗️</h2>
+            <div id="puzzleContent"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="submitAnswer">🔬 Submit Answer</button>
+                <button id="closePuzzle">❌ Close</button>
+            </div>
+        </div>
+        
+        <!-- Floating molecules container -->
+        <div id="floating-molecules"></div>
+        
+        <!-- Chemistry puns container -->
+        <div id="chemistry-puns"></div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

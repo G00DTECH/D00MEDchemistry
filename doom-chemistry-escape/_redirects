@@ -1,0 +1,46 @@
+# Redirects for DOOM Chemistry Escape Room
+# Handle routing and legacy URLs for Netlify deployment
+
+# Main game redirects
+/game           /index.html     301
+/play           /index.html     301
+/start          /index.html     301
+
+# Development server redirects (for users who might bookmark these)
+/server.py      /index.html     301
+/localhost:*    /index.html     301
+
+# Educational resource redirects
+/help           /index.html     301
+/instructions   /index.html     301
+/guide          /index.html     301
+
+# Test page redirects to main game
+/test-features.html  /index.html  301
+/test-runner.html    /index.html  301
+
+# API-style endpoints that don't exist (redirect to game)
+/api/*          /index.html     404
+/server/*       /index.html     404
+
+# File extension variations
+/index          /index.html     301
+/game.html      /index.html     301
+
+# Mobile-specific redirects (if mobile version needed later)
+/mobile         /index.html     301
+/touch          /index.html     301
+
+# Social sharing and deep linking support
+/share          /index.html     301
+/puzzle/*       /index.html     200
+/level/*        /index.html     200
+/chemistry/*    /index.html     200
+
+# Handle missing files gracefully - redirect to main game
+/*              /index.html     404
+
+# Asset fallbacks (though these shouldn't be needed with proper paths)
+/assets/*       /index.html     404
+/images/*       /index.html     404
+/sounds/*       /index.html     404

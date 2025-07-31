@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOOM Chemistry - Feature Test</title>
+    <link rel="stylesheet" href="chemistry-components.css">
+    <style>
+        body {
+            background: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+        }
+        .test-section h2 {
+            color: #00ff00;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #ff0000;">DOOM Chemistry Escape Room - Feature Test</h1>
+    
+    <div class="test-section">
+        <h2>🧪 Chemistry Puzzles Implemented</h2>
+        <ul>
+            <li>✅ Periodic Table Challenge - Atomic numbers and element properties</li>
+            <li>✅ Equation Balancing - Balance chemical equations with correct coefficients</li>
+            <li>✅ Molecular Structure - Identify molecular geometries (bent, linear, etc.)</li>
+            <li>✅ Stoichiometry - Calculate molar relationships in reactions</li>
+            <li>✅ pH Calculations - Determine pH from hydrogen ion concentration</li>
+            <li>✅ Gas Laws - Apply ideal gas law principles</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🎮 Game Mechanics</h2>
+        <ul>
+            <li>✅ DOOM-style 3D movement with WASD + mouse look</li>
+            <li>✅ Raycasting-style graphics with depth shading</li>
+            <li>✅ Door/key system - doors unlock when puzzles are solved</li>
+            <li>✅ Interactive puzzle stations (cyan squares)</li>
+            <li>✅ Health system with collectible health packs</li>
+            <li>✅ Scoring system with rewards for correct answers</li>
+            <li>✅ Real-time minimap for navigation</li>
+            <li>✅ Progressive puzzle unlocking</li>
+            <li>✅ Particle effects and explosions</li>
+            <li>✅ Win condition when all puzzles solved</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>📚 Educational Features</h2>
+        <ul>
+            <li>✅ Detailed explanations for each answer</li>
+            <li>✅ Multiple difficulty levels within puzzle types</li>
+            <li>✅ Visual feedback (color-coded answers)</li>
+            <li>✅ Chemistry lab themed environment</li>
+            <li>✅ Real chemistry curriculum alignment</li>
+            <li>✅ Time tracking for assessment</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>💻 Technical Implementation</h2>
+        <ul>
+            <li>✅ Browser-based - no installation required</li>
+            <li>✅ HTML5 Canvas for 3D graphics</li>
+            <li>✅ Vanilla JavaScript - no framework dependencies</li>
+            <li>✅ Responsive design for different screen sizes</li>
+            <li>✅ Mouse pointer lock for immersive control</li>
+            <li>✅ Collision detection and physics</li>
+            <li>✅ Modular code architecture</li>
+            <li>✅ Local development server included</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🧮 Sample Interactive Components</h2>
+        
+        <h3>pH Calculator Demo:</h3>
+        <div id="ph-calculator-demo"></div>
+        
+        <h3>Periodic Table Widget Demo:</h3>
+        <div id="periodic-table-demo" style="max-width: 400px; overflow: auto;"></div>
+        
+        <h3>Chemical Equation Example:</h3>
+        <div class="chemical-equation">
+            <span class="reactant"><span class="coefficient">2</span>H₂</span>
+            <span class="arrow">→</span>
+            <span class="reactant">O₂</span>
+            <span class="arrow">→</span>
+            <span class="product"><span class="coefficient">2</span>H₂O</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 How to Play</h2>
+        <ol>
+            <li><strong>Start the game</strong> by opening index.html or running server.py</li>
+            <li><strong>Click "START EXPERIMENT"</strong> to begin</li>
+            <li><strong>Move with WASD</strong> and <strong>look with mouse</strong> (click to enable mouse lock)</li>
+            <li><strong>Find cyan puzzle stations</strong> and press <strong>E</strong> to interact</li>
+            <li><strong>Solve chemistry puzzles</strong> to unlock red doors</li>
+            <li><strong>Collect health items</strong> (red squares) and keys (yellow squares)</li>
+            <li><strong>Progress through all 6 rooms</strong> to complete the escape</li>
+            <li><strong>Learn chemistry</strong> while having fun!</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>🏆 Achievement System Ideas</h2>
+        <div class="achievement-badge">Speed Chemist</div>
+        <div class="achievement-badge">Perfect Score</div>
+        <div class="achievement-badge">No Hints Used</div>
+        <div class="achievement-badge">Lab Explorer</div>
+        <div class="achievement-badge">Equation Master</div>
+    </div>
+
+    <div style="text-align: center; margin: 40px 0;">
+        <a href="index.html" style="
+            background: #006600;
+            border: 3px solid #00ff00;
+            color: #00ff00;
+            padding: 20px 40px;
+            text-decoration: none;
+            font-size: 24px;
+            font-family: 'Courier New', monospace;
+            border-radius: 10px;
+            display: inline-block;
+            transition: all 0.3s;
+        " onmouseover="this.style.background='#008800'" onmouseout="this.style.background='#006600'">
+            ▶ PLAY THE GAME ◀
+        </a>
+    </div>
+
+    <script src="advanced-puzzles.js"></script>
+    <script>
+        // Initialize demo components
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize pH Calculator demo
+            const phCalc = new PHCalculator('ph-calculator-demo');
+            
+            // Initialize Periodic Table demo
+            const periodicWidget = new PeriodicTableWidget('periodic-table-demo');
+            
+            console.log('DOOM Chemistry Escape Room - All features loaded successfully!');
+            console.log('Game includes:', {
+                puzzleTypes: 6,
+                gameFeatures: 'Full 3D movement, door/key system, scoring',
+                educational: 'Standards-aligned chemistry curriculum',
+                technical: 'Browser-based, no dependencies'
+            });
+        });
+    </script>
+</body>
+</html>
