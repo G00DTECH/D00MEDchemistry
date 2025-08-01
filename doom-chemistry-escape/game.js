@@ -29,7 +29,7 @@ class DoomChemistryGame {
             angle: 0,
             health: 100,
             keys: 0,
-            speed: 3
+            speed: 8  // Optimized for DOOM-like movement feel
         };
 
         this.score = 0;
@@ -50,14 +50,25 @@ class DoomChemistryGame {
         this.items = [];
         this.currentPuzzle = null;
 
-        // 3D Rendering constants
-        this.FOV = Math.PI / 3; // 60 degrees
+        // 3D Rendering constants - optimized for performance
+        this.FOV = Math.PI / 2.4; // ~75 degrees - more DOOM-like
         this.HALF_FOV = this.FOV / 2;
-        this.NUM_RAYS = this.canvas.width;
+        this.NUM_RAYS = Math.min(this.canvas.width, 400); // Limit rays for performance
         this.ANGLE_STEP = this.FOV / this.NUM_RAYS;
-        this.MAX_DEPTH = 800;
-        this.WALL_HEIGHT = 100;
+        this.MAX_DEPTH = 800; // Increased for better view distance
+        this.WALL_HEIGHT = 48;  // Scaled to match DOOM proportions
         this.PROJECTION_DIST = (this.canvas.width / 2) / Math.tan(this.HALF_FOV);
+        
+        // DOOM-style floor/ceiling rendering constants
+        this.VIEWZ = 32; // Player eye height (like DOOM's viewz)
+        this.FLOOR_HEIGHT = 0; // Floor plane height
+        this.CEILING_HEIGHT = 64; // Ceiling plane height
+        
+        // Precompute perspective scaling for floor rendering (like DOOM's yslope[])
+        this.yslope = [];
+        this.floorClip = [];
+        this.ceilingClip = [];
+        this.initializeFloorRendering();
         
         // Texture system
         this.textures = {};
@@ -733,6 +744,16 @@ class DoomChemistryGame {
             if (e.code === 'KeyE') {
                 this.interact();
             }
+            
+            // Number keys for quiz answers (1-4)
+            if (this.currentPuzzle) {
+                const numberKeys = ['Digit1', 'Digit2', 'Digit3', 'Digit4'];
+                const keyIndex = numberKeys.indexOf(e.code);
+                if (keyIndex !== -1 && keyIndex < this.currentPuzzle.options.length) {
+                    this.selectPuzzleOption(keyIndex);
+                    this.submitPuzzleAnswer();
+                }
+            }
         });
 
         document.addEventListener('keyup', (e) => {
@@ -802,6 +823,8 @@ class DoomChemistryGame {
         window.addEventListener('resize', () => {
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
+            this.PROJECTION_DIST = (this.canvas.width / 2) / Math.tan(this.HALF_FOV);
+            this.initializeFloorRendering(); // Reinitialize floor rendering on resize
         });
     }
 
@@ -1218,10 +1241,15 @@ class DoomChemistryGame {
         document.getElementById('puzzleTitle').textContent = puzzle.title;
         
         let content = `<div class="puzzle-question">${puzzle.question}</div>`;
+        content += '<div class="number-key-hint" style="text-align: center; margin: 10px 0; color: #4ecdc4; font-size: 14px; font-weight: bold;">';
+        content += '🎮 Press number keys 1-4 to select your answer instantly! 🎮';
+        content += '</div>';
         content += '<div class="puzzle-options">';
         
         puzzle.options.forEach((option, index) => {
-            content += `<div class="puzzle-option" data-index="${index}">${option}</div>`;
+            content += `<div class="puzzle-option" data-index="${index}">
+                <span class="option-number">${index + 1}</span> ${option}
+            </div>`;
         });
         
         content += '</div>';
@@ -1257,14 +1285,26 @@ class DoomChemistryGame {
         }
         document.getElementById('puzzleModal').style.display = 'block';
     }
+    
+    selectPuzzleOption(index) {
+        // Clear previous selections
+        document.querySelectorAll('.puzzle-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        
+        // Select the chosen option
+        const targetOption = document.querySelector(`.puzzle-option[data-index="${index}"]`);
+        if (targetOption) {
+            targetOption.classList.add('selected');
+        }
+    }
 
     submitPuzzleAnswer() {
         if (!this.currentPuzzle) return;
 
         const selectedOption = document.querySelector('.puzzle-option.selected');
         if (!selectedOption) {
-            alert('Please select an answer first!');
-            return;
+            return; // Silently fail for number key system - no alert needed
         }
 
         const selectedIndex = parseInt(selectedOption.dataset.index);
@@ -1383,39 +1423,61 @@ class DoomChemistryGame {
     render3DView() {
         const halfHeight = this.canvas.height / 2;
         
-        // Render at adaptive resolution for best performance
-        const renderWidth = Math.min(this.canvas.width, 400); // Reduced for texture performance
-        const step = Math.max(1, this.canvas.width / renderWidth);
+        // Initialize clipping arrays (like DOOM's floorclip/ceilingclip)
+        this.floorClip = new Array(this.canvas.width).fill(this.canvas.height);
+        this.ceilingClip = new Array(this.canvas.width).fill(-1);
+        
+        // Optimized rendering with better performance
+        const renderWidth = Math.min(this.canvas.width, 320); // Balanced quality/performance
+        const step = this.canvas.width / renderWidth;
         
         // Cast rays for each vertical strip of the screen
         for (let i = 0; i < renderWidth; i++) {
-            const x = i * step;
+            const x = Math.floor(i * step);
             const rayAngle = this.player.angle - this.HALF_FOV + (i / renderWidth) * this.FOV;
             const ray = this.castRay(rayAngle);
             
             // Fix fisheye effect
             const correctedDistance = ray.distance * Math.cos(rayAngle - this.player.angle);
             
-            // Calculate wall height on screen
-            const wallHeight = (this.WALL_HEIGHT / correctedDistance) * this.PROJECTION_DIST;
+            // Skip if too far (performance optimization)
+            if (correctedDistance > this.MAX_DEPTH) {
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(x, 0, Math.ceil(step), this.canvas.height);
+                continue;
+            }
             
-            // Calculate top and bottom of wall strip
-            const wallTop = halfHeight - wallHeight / 2;
-            const wallBottom = halfHeight + wallHeight / 2;
+            // Calculate wall height on screen using DOOM-style projection
+            const wallScreenHeight = (this.WALL_HEIGHT / correctedDistance) * this.PROJECTION_DIST;
+            
+            // Calculate wall top and bottom positions relative to horizon
+            const horizonY = halfHeight - (this.VIEWZ / correctedDistance) * this.PROJECTION_DIST;
+            const wallTop = Math.max(0, horizonY - wallScreenHeight / 2);
+            const wallBottom = Math.min(this.canvas.height, horizonY + wallScreenHeight / 2);
+            
+            // Update clipping arrays
+            for (let clipX = x; clipX < Math.min(this.canvas.width, x + Math.ceil(step)); clipX++) {
+                this.ceilingClip[clipX] = Math.max(this.ceilingClip[clipX], wallTop);
+                this.floorClip[clipX] = Math.min(this.floorClip[clipX], wallBottom);
+            }
             
             // Apply lighting based on distance and wall side
             const lightFactor = Math.max(0.1, Math.min(1, 1 - correctedDistance / this.MAX_DEPTH));
-            const sideFactor = ray.side === 0 ? 1 : 0.75; // Make Y-sides darker for depth
+            const sideFactor = ray.side === 0 ? 1 : 0.75;
             const totalLightFactor = lightFactor * sideFactor;
             
-            // Draw ceiling with texture
-            this.drawTexturedCeiling(x, step, wallTop);
+            // Draw ceiling above wall
+            if (wallTop > 0) {
+                this.renderCeilingColumn(x, step, 0, wallTop);
+            }
             
-            // Draw wall with texture
-            this.drawTexturedWall(x, step, wallTop, wallBottom, ray, totalLightFactor);
+            // Draw wall with optimized rendering
+            this.drawOptimizedWall(x, step, wallTop, wallBottom, ray, totalLightFactor);
             
-            // Draw floor with texture
-            this.drawTexturedFloor(x, step, wallBottom, correctedDistance, rayAngle);
+            // Draw floor below wall using DOOM-style perspective
+            if (wallBottom < this.canvas.height) {
+                this.renderFloorColumn(x, step, wallBottom, this.canvas.height, rayAngle, correctedDistance);
+            }
         }
     }
     
@@ -1436,6 +1498,62 @@ class DoomChemistryGame {
         }
     }
     
+    drawOptimizedWall(x, step, wallTop, wallBottom, ray, lightFactor) {
+        const wallHeight = Math.max(1, wallBottom - wallTop);
+        
+        // Choose color based on wall type (using colors instead of textures for performance)
+        let baseColor;
+        switch (ray.wallType) {
+            case 1:
+                baseColor = [100, 120, 140]; // Lab wall blue-gray
+                break;
+            case 2:
+                baseColor = [120, 80, 60]; // Brick brown
+                break;
+            case 3:
+                baseColor = [140, 60, 60]; // Door red
+                break;
+            default:
+                baseColor = [100, 120, 140];
+        }
+        
+        // Apply lighting to color
+        const r = Math.floor(baseColor[0] * lightFactor);
+        const g = Math.floor(baseColor[1] * lightFactor);
+        const b = Math.floor(baseColor[2] * lightFactor);
+        
+        this.ctx.fillStyle = `rgb(${r},${g},${b})`;
+        this.ctx.fillRect(x, wallTop, Math.ceil(step), wallHeight);
+        
+        // Add simple texture pattern for visual interest
+        if (lightFactor > 0.3 && wallHeight > 20) {
+            this.addSimplePattern(x, wallTop, step, wallHeight, ray.wallType, lightFactor);
+        }
+    }
+    
+    addSimplePattern(x, y, width, height, wallType, lightFactor) {
+        this.ctx.strokeStyle = `rgba(255, 255, 255, ${lightFactor * 0.1})`;
+        this.ctx.lineWidth = 1;
+        
+        if (wallType === 2) { // Brick pattern
+            const brickHeight = 12;
+            for (let i = 0; i < height; i += brickHeight) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, y + i);
+                this.ctx.lineTo(x + width, y + i);
+                this.ctx.stroke();
+            }
+        } else if (wallType === 1) { // Panel lines
+            const panelWidth = Math.max(8, width / 3);
+            for (let i = 0; i < width; i += panelWidth) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(x + i, y);
+                this.ctx.lineTo(x + i, y + height);
+                this.ctx.stroke();
+            }
+        }
+    }
+
     drawTexturedWall(x, step, wallTop, wallBottom, ray, lightFactor) {
         const wallHeight = Math.max(1, wallBottom - wallTop);
         
@@ -1503,27 +1621,80 @@ class DoomChemistryGame {
         }
     }
     
-    drawTexturedFloor(x, step, wallBottom, distance, rayAngle) {
-        const floorHeight = this.canvas.height - Math.min(this.canvas.height, wallBottom);
-        if (floorHeight <= 0) return;
+    initializeFloorRendering() {
+        // Precompute perspective scaling for each screen row (like DOOM's yslope[])
+        this.yslope = new Array(this.canvas.height);
+        const halfHeight = this.canvas.height / 2;
         
-        // Simple floor texture mapping
-        const texture = this.textures.labFloor;
-        if (texture) {
-            // Floor rendering with perspective (simplified)
-            const floorY = Math.min(this.canvas.height, wallBottom);
-            const perspective = Math.max(0.1, 1 - distance / this.MAX_DEPTH);
-            
-            this.ctx.globalAlpha = perspective;
-            this.ctx.drawImage(texture,
-                0, 0, this.TEXTURE_SIZE, Math.min(this.TEXTURE_SIZE, floorHeight * 0.1),
-                x, floorY, Math.ceil(step), floorHeight
-            );
-            this.ctx.globalAlpha = 1;
-        } else {
-            this.ctx.fillStyle = '#2a2a2a';
-            this.ctx.fillRect(x, Math.min(this.canvas.height, wallBottom), Math.ceil(step), floorHeight);
+        for (let y = 0; y < this.canvas.height; y++) {
+            const dy = Math.abs(y - halfHeight);
+            if (dy === 0) {
+                this.yslope[y] = 0;
+            } else {
+                // DOOM-style perspective calculation
+                this.yslope[y] = (this.PROJECTION_DIST * this.VIEWZ) / dy;
+            }
         }
+    }
+    
+    renderFloorColumn(x, step, startY, endY, rayAngle, wallDistance) {
+        const texture = this.textures.labFloor;
+        const stepWidth = Math.ceil(step);
+        
+        // Render floor using DOOM-style horizontal spans
+        for (let y = Math.floor(startY); y < endY; y++) {
+            if (y >= this.canvas.height) break;
+            
+            // Calculate distance to floor point using precomputed yslope
+            const distance = this.yslope[y];
+            if (distance <= 0 || distance > this.MAX_DEPTH) continue;
+            
+            // Calculate world coordinates of floor point
+            const cos = Math.cos(rayAngle);
+            const sin = Math.sin(rayAngle);
+            const worldX = this.player.x + distance * cos;
+            const worldY = this.player.y + distance * sin;
+            
+            // Calculate texture coordinates
+            const textureX = Math.floor(Math.abs(worldX) % this.TEXTURE_SIZE);
+            const textureY = Math.floor(Math.abs(worldY) % this.TEXTURE_SIZE);
+            
+            // Apply distance-based lighting
+            const lightFactor = Math.max(0.1, Math.min(1, 1 - distance / this.MAX_DEPTH));
+            
+            if (texture) {
+                // Get pixel color from texture
+                const canvas = document.createElement('canvas');
+                canvas.width = canvas.height = 1;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(texture, textureX, textureY, 1, 1, 0, 0, 1, 1);
+                const imageData = ctx.getImageData(0, 0, 1, 1).data;
+                
+                const r = Math.floor(imageData[0] * lightFactor);
+                const g = Math.floor(imageData[1] * lightFactor);
+                const b = Math.floor(imageData[2] * lightFactor);
+                
+                this.ctx.fillStyle = `rgb(${r},${g},${b})`;
+            } else {
+                // Fallback floor color with lighting
+                const baseColor = [40, 60, 40]; // Dark green floor
+                const r = Math.floor(baseColor[0] * lightFactor);
+                const g = Math.floor(baseColor[1] * lightFactor);
+                const b = Math.floor(baseColor[2] * lightFactor);
+                
+                this.ctx.fillStyle = `rgb(${r},${g},${b})`;
+            }
+            
+            this.ctx.fillRect(x, y, stepWidth, 1);
+        }
+    }
+    
+    renderCeilingColumn(x, step, startY, endY) {
+        const stepWidth = Math.ceil(step);
+        
+        // Simple ceiling rendering
+        this.ctx.fillStyle = '#1a1a1a';
+        this.ctx.fillRect(x, startY, stepWidth, endY - startY);
     }
     
     renderHUD3D() {
@@ -1548,7 +1719,7 @@ class DoomChemistryGame {
     renderSprites() {
         const sprites = [];
         
-        // Add puzzle stations as 3D sprites
+        // Add puzzle stations as 3D sprites (only if visible)
         this.puzzleStations.forEach(station => {
             if (station.active) {
                 const spriteX = station.mapX * this.TILE_SIZE + this.TILE_SIZE / 2;
@@ -1557,6 +1728,11 @@ class DoomChemistryGame {
                     Math.pow(this.player.x - spriteX, 2) + 
                     Math.pow(this.player.y - spriteY, 2)
                 );
+                
+                // Check if sprite is blocked by walls (line of sight test)
+                if (!this.hasLineOfSight(this.player.x, this.player.y, spriteX, spriteY)) {
+                    return; // Skip this sprite - it's blocked by walls
+                }
                 
                 // Color based on equipment type
                 let color;
@@ -1595,6 +1771,11 @@ class DoomChemistryGame {
                 Math.pow(this.player.y - spriteY, 2)
             );
             
+            // Check if item is blocked by walls (line of sight test)
+            if (!this.hasLineOfSight(this.player.x, this.player.y, spriteX, spriteY)) {
+                return; // Skip this item - it's blocked by walls
+            }
+            
             sprites.push({
                 x: spriteX,
                 y: spriteY,
@@ -1623,13 +1804,16 @@ class DoomChemistryGame {
         const distance = sprite.distance;
         const angle = Math.atan2(dy, dx) - this.player.angle;
         
-        // Check if sprite is in front of player
-        if (Math.abs(angle) > this.HALF_FOV + 0.5) return;
+        // More generous FOV check to prevent disappearing
+        if (Math.abs(angle) > this.HALF_FOV + 1.0) return;
         
         // Calculate sprite screen position
         const spriteScreenX = this.canvas.width / 2 + Math.tan(angle) * this.PROJECTION_DIST;
         
-        // Don't render if too far or too close
+        // More generous bounds checking
+        if (spriteScreenX < -100 || spriteScreenX > this.canvas.width + 100) return;
+        
+        // Don't render if too far, but keep closer objects
         if (distance < 10 || distance > this.MAX_DEPTH) return;
         
         // Apply lighting
@@ -1645,22 +1829,29 @@ class DoomChemistryGame {
     render3DPuzzleStation(sprite, screenX, distance, lightFactor) {
         // Get puzzle station data
         const station = this.puzzleStations.find(s => 
-            Math.abs(s.mapX * this.TILE_SIZE + this.TILE_SIZE / 2 - sprite.x) < 5 &&
-            Math.abs(s.mapY * this.TILE_SIZE + this.TILE_SIZE / 2 - sprite.y) < 5
+            Math.abs(s.mapX * this.TILE_SIZE + this.TILE_SIZE / 2 - sprite.x) < 10 &&
+            Math.abs(s.mapY * this.TILE_SIZE + this.TILE_SIZE / 2 - sprite.y) < 10
         );
         
-        if (!station) return;
+        if (!station) {
+            // Fallback rendering if station not found
+            this.renderFallbackPuzzleStation(sprite, screenX, distance, lightFactor);
+            return;
+        }
         
-        // Calculate 3D dimensions
-        const baseSize = (station.height / distance) * this.PROJECTION_DIST;
-        const width = (station.width / distance) * this.PROJECTION_DIST;
+        // Calculate 3D dimensions with better scaling
+        const baseSize = Math.max(20, (60 / distance) * this.PROJECTION_DIST);
+        const width = Math.max(15, (50 / distance) * this.PROJECTION_DIST);
         
-        // Position on ground (not floating)
-        const groundLevel = this.canvas.height / 2 + (this.WALL_HEIGHT / distance) * this.PROJECTION_DIST / 4;
+        // Better ground positioning
+        const groundLevel = this.canvas.height / 2 + (this.WALL_HEIGHT / (distance * 2)) * this.PROJECTION_DIST;
         const spriteTop = groundLevel - baseSize;
         const spriteBottom = groundLevel;
         const spriteLeft = screenX - width / 2;
         const spriteRight = screenX + width / 2;
+        
+        // Ensure puzzle is visible by clamping to screen
+        if (spriteRight < 0 || spriteLeft > this.canvas.width) return;
         
         // Choose texture based on equipment type
         let texture;
@@ -2136,6 +2327,86 @@ class DoomChemistryGame {
             playerMinimapY + Math.sin(this.player.angle) * 10
         );
         this.ctx.stroke();
+    }
+    
+    renderFallbackPuzzleStation(sprite, screenX, distance, lightFactor) {
+        // Simple but reliable fallback rendering for puzzle visibility
+        const size = Math.max(40, (100 / distance) * this.PROJECTION_DIST);
+        const width = Math.max(35, (80 / distance) * this.PROJECTION_DIST);
+        
+        const centerY = this.canvas.height / 2;
+        const spriteTop = centerY - size / 2;
+        const spriteBottom = centerY + size / 2;
+        const spriteLeft = screenX - width / 2;
+        const spriteRight = screenX + width / 2;
+        
+        // Bright colored box so it's always visible
+        this.ctx.globalAlpha = Math.max(0.8, lightFactor);
+        this.ctx.fillStyle = sprite.color || '#00ffff';
+        this.ctx.fillRect(spriteLeft, spriteTop, width, size);
+        
+        // Bright outline for maximum visibility
+        this.ctx.strokeStyle = '#ffffff';
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeRect(spriteLeft - 1, spriteTop - 1, width + 2, size + 2);
+        
+        // Equipment type indicator
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = 'bold 20px monospace';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('🧪', screenX, centerY + 8);
+        
+        this.ctx.globalAlpha = 1;
+        
+        // Always show interaction text for fallback
+        if (distance < 120) {
+            this.ctx.fillStyle = '#00ff00';
+            this.ctx.font = 'bold 16px monospace';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('Press E', screenX, spriteTop - 8);
+        }
+    }
+    
+    hasLineOfSight(x1, y1, x2, y2) {
+        // Enhanced line of sight test with more accurate wall detection
+        const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+        
+        // If very close, consider it visible (same room)
+        if (distance < this.TILE_SIZE / 2) return true;
+        
+        const steps = Math.max(8, Math.ceil(distance / 2)); // More accuracy with smaller steps
+        
+        const stepX = (x2 - x1) / steps;
+        const stepY = (y2 - y1) / steps;
+        
+        // Check each point along the line (including starting closer to player)
+        for (let i = 1; i < steps; i++) {
+            const checkX = x1 + stepX * i;
+            const checkY = y1 + stepY * i;
+            
+            const mapX = Math.floor(checkX / this.TILE_SIZE);
+            const mapY = Math.floor(checkY / this.TILE_SIZE);
+            
+            // Check bounds first
+            if (mapX < 0 || mapX >= this.MAP_WIDTH || mapY < 0 || mapY >= this.MAP_HEIGHT) {
+                return false; // Out of bounds blocks line of sight
+            }
+            
+            // Check for walls (solid blocks)
+            if (this.map[mapY] && this.map[mapY][mapX] === 1) {
+                return false; // Wall blocks line of sight
+            }
+            
+            // Check for closed doors
+            if (this.map[mapY] && this.map[mapY][mapX] === 2) {
+                const door = this.doors.find(d => d.mapX === mapX && d.mapY === mapY);
+                if (door && door.locked) {
+                    return false; // Closed door blocks line of sight
+                }
+            }
+        }
+        
+        return true; // Clear line of sight
     }
 }
 

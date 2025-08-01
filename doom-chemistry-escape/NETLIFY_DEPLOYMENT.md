@@ -8,11 +8,24 @@ This DOOM Chemistry Escape Room game has been optimized for Netlify deployment w
 
 **Core Game Files:**
 - `index.html` - Main game with enhanced meta tags and SEO optimization
-- `game.js` - 3D raycasting engine with textured environments
-- `chemistry-components.css` - Educational UI styling
+- `game.js` - Complete 3D DOOM engine with all latest improvements:
+  - ⚡ Performance optimizations and smooth movement
+  - 🏗️ Authentic DOOM wall proportions and floor rendering
+  - 🔍 Wall occlusion system for realistic sprite visibility
+  - 🎮 Number key quiz system (1-4 for instant answers)
+  - 🧪 Enhanced chemistry puzzle integration
+- `chemistry-components.css` - Complete educational UI styling with number key system
 - `advanced-puzzles.js` - Extended puzzle system
 - `chemistry-test.js` - Chemistry validation system
 - `game-validator.js` - Game logic validation
+
+**Recent Major Improvements Included:**
+- ✅ **Performance Fixes** - Smooth 60 FPS movement and optimized rendering
+- ✅ **Proportion Fixes** - Authentic DOOM scale with proper wall heights
+- ✅ **Floor Rendering** - Visible floor planes with proper perspective
+- ✅ **Wall Occlusion** - Objects properly hidden behind walls
+- ✅ **Quiz Number Keys** - Instant 1-4 key selection system
+- ✅ **Enhanced Textures** - Professional lab environment visuals
 
 **Netlify Configuration:**
 - `netlify.toml` - Build settings, headers, redirects, and optimizations

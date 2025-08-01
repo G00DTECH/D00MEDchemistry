@@ -1,5 +1,79 @@
 /* Chemistry Components Styling */
 
+/* Quiz Number Key Styling */
+.puzzle-option {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    margin: 8px 0;
+    background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+    border: 2px solid #555;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    color: #ffffff;
+}
+
+.option-number {
+    background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.puzzle-option:hover {
+    background: linear-gradient(135deg, #3a3a3a, #4a4a4a);
+    border-color: #4ecdc4;
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+}
+
+.puzzle-option.selected {
+    background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+    border-color: #4ecdc4;
+    color: white;
+    transform: translateX(8px);
+    box-shadow: 0 6px 16px rgba(78, 205, 196, 0.5);
+}
+
+.puzzle-option.selected .option-number {
+    background: linear-gradient(135deg, #ffffff, #f0f0f0);
+    color: #4ecdc4;
+}
+
+.puzzle-option.correct {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    border-color: #27ae60;
+    animation: correct-pulse 0.6s ease-in-out;
+}
+
+.puzzle-option.incorrect {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    border-color: #e74c3c;
+    animation: incorrect-shake 0.6s ease-in-out;
+}
+
+@keyframes correct-pulse {
+    0%, 100% { transform: scale(1) translateX(8px); }
+    50% { transform: scale(1.05) translateX(10px); }
+}
+
+@keyframes incorrect-shake {
+    0%, 100% { transform: translateX(8px); }
+    25% { transform: translateX(4px); }
+    75% { transform: translateX(12px); }
+}
+
 .periodic-table {
     display: grid;
     grid-template-columns: repeat(18, 40px);

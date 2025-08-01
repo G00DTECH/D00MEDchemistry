@@ -2,28 +2,41 @@
 
 A browser-based educational game that combines the classic DOOM aesthetic with chemistry puzzles. Navigate through a laboratory facility, solve chemistry challenges to unlock doors, and escape!
 
+## 🎮 Latest Improvements
+
+**Version 2.0 - Major Updates:**
+- ⚡ **Performance Optimized** - Smooth 60 FPS movement and rendering
+- 🏗️ **Authentic DOOM Proportions** - Proper wall heights and floor visibility  
+- 🔍 **Realistic Wall Occlusion** - Objects properly hidden behind walls
+- 🎮 **Number Key Quiz System** - Press 1-4 for instant answer selection
+- 🧪 **Enhanced Chemistry Content** - Professional lab environment
+- ✨ **Delightful Animations** - Engaging visual effects and celebrations
+
 ## Features
 
-- **DOOM-inspired 3D graphics** with raycasting-style rendering
-- **5 Different Chemistry Puzzle Types:**
+- **Authentic DOOM-style 3D Engine** with proper raycasting and floor rendering
+- **6 Different Chemistry Puzzle Types:**
   - Periodic Table challenges
   - Chemical equation balancing
   - Molecular structure identification
   - Stoichiometry problems
   - pH calculations
+  - Gas law calculations
 - **Escape room mechanics** with locked doors and keys
 - **Progressive difficulty** - puzzles unlock as you progress
-- **Real-time 3D movement** with mouse look and WASD controls
-- **Educational feedback** with explanations for each answer
+- **Real-time 3D movement** with optimized performance
+- **Educational feedback** with detailed explanations
 - **Scoring system** and time tracking
-- **Minimap** for navigation
+- **Interactive minimap** for navigation
+- **Wall occlusion system** for realistic visibility
 
 ## How to Play
 
 ### Controls
-- **W, A, S, D** - Move around
+- **W, A, S, D** - Move around (optimized for smooth navigation)
 - **Mouse** - Look around (click to enable mouse lock)
 - **E** - Interact with puzzle stations
+- **1, 2, 3, 4** - Select quiz answers instantly (NEW!)
 - **ESC** - Toggle instructions
 
 ### Objective
