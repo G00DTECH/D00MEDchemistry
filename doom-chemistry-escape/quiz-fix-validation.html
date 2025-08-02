@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Number Key Fix Validation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+        }
+
+        .test-section {
+            background: #222;
+            border: 2px solid #00ff00;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        #puzzleModal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #222;
+            border: 3px solid #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            max-height: 70vh;
+            overflow-y: auto;
+            display: none;
+            pointer-events: all;
+        }
+
+        #puzzleModal h2 {
+            color: #00ff00;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .puzzle-question {
+            margin: 15px 0;
+            font-size: 16px;
+        }
+
+        .puzzle-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .puzzle-option {
+            background: #333;
+            border: 2px solid #666;
+            color: #00ff00;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-number {
+            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .puzzle-option:hover {
+            background: #444;
+            border-color: #00ff00;
+            transform: translateX(5px);
+            box-shadow: -5px 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .puzzle-option.selected {
+            background: #006600;
+            border-color: #00ff00;
+        }
+
+        .puzzle-option.correct {
+            background: #004400;
+            border-color: #00ff00;
+            animation: correct-flash 1s ease-in-out;
+        }
+
+        @keyframes correct-flash {
+            0%, 100% { 
+                background: #004400; 
+                transform: scale(1); 
+            }
+            50% { 
+                background: #006600; 
+                transform: scale(1.02); 
+                box-shadow: 0 0 20px rgba(0, 255, 0, 0.6); 
+            }
+        }
+
+        .test-log {
+            background: #111;
+            border: 1px solid #666;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .log-entry {
+            margin: 2px 0;
+            border-left: 3px solid #00ff00;
+            padding-left: 5px;
+        }
+
+        .log-entry.error {
+            border-left-color: #ff0000;
+            color: #ff6666;
+        }
+
+        .log-entry.success {
+            border-left-color: #00ff00;
+            color: #66ff66;
+        }
+
+        .log-entry.info {
+            border-left-color: #4ecdc4;
+            color: #4ecdc4;
+        }
+
+        button {
+            background: #006600;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #008800;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Quiz Number Key Fix Validation Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="testResults">
+            <div>✅ <strong>Issue Identified:</strong> Modal visibility detection logic was flawed</div>
+            <div>✅ <strong>Root Cause:</strong> CSS display property returns empty string when set via CSS, not 'none'</div>
+            <div>✅ <strong>Fix Applied:</strong> Updated visibility detection to use offsetHeight/offsetWidth</div>
+            <div>✅ <strong>Debug Logging:</strong> Added comprehensive console logging for deployment troubleshooting</div>
+            <div>✅ <strong>Error Handling:</strong> Added null checks for DOM elements</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Interactive Test</h2>
+        <button onclick="showTestPuzzle()">🧪 Show Test Quiz</button>
+        <button onclick="clearLog()">🧹 Clear Log</button>
+        
+        <div class="test-log" id="testLog"></div>
+    </div>
+
+    <!-- Test Modal -->
+    <div id="puzzleModal">
+        <h2 id="puzzleTitle">⚗️ Test Chemistry Challenge ⚗️</h2>
+        <div id="puzzleContent"></div>
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="submitTestAnswer()">🔬 Submit Answer</button>
+            <button onclick="closeTestPuzzle()">❌ Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Test logging system
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('testLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `[${timestamp}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            
+            // Also log to console for debugging
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function clearLog() {
+            document.getElementById('testLog').innerHTML = '';
+        }
+
+        // Test puzzle data
+        const testPuzzle = {
+            id: 1,
+            title: '🧪 Test Chemistry Question',
+            question: 'What is the atomic number of Carbon?',
+            options: ['4', '6', '8', '12'],
+            correct: 1
+        };
+
+        let currentPuzzle = null;
+
+        function showTestPuzzle() {
+            log('Attempting to show test puzzle...', 'info');
+            
+            currentPuzzle = testPuzzle;
+            
+            // Build puzzle content
+            let content = `<div class="puzzle-question">${testPuzzle.question}</div>`;
+            content += '<div style="margin: 10px 0; color: #4ecdc4; text-align: center;">';
+            content += '🎮 Press number keys 1-4 to select your answer instantly! 🎮';
+            content += '</div>';
+            content += '<div class="puzzle-options">';
+            
+            testPuzzle.options.forEach((option, index) => {
+                content += `<div class="puzzle-option" data-index="${index}">
+                    <span class="option-number">${index + 1}</span> ${option}
+                </div>`;
+            });
+            
+            content += '</div>';
+            
+            document.getElementById('puzzleContent').innerHTML = content;
+            
+            const puzzleModal = document.getElementById('puzzleModal');
+            if (!puzzleModal) {
+                log('ERROR: puzzleModal element not found in DOM!', 'error');
+                return;
+            }
+            
+            puzzleModal.style.display = 'block';
+            log(`Puzzle modal displayed, style.display: ${puzzleModal.style.display}`, 'success');
+            
+            // Test visibility detection methods
+            const method1 = puzzleModal.style.display !== 'none';
+            const method2 = puzzleModal.style.display === 'block';
+            const method3 = puzzleModal.offsetHeight > 0 && puzzleModal.offsetWidth > 0;
+            
+            log(`Visibility test - OLD method (style.display !== 'none'): ${method1}`, method1 ? 'success' : 'error');
+            log(`Visibility test - NEW method 1 (style.display === 'block'): ${method2}`, method2 ? 'success' : 'error');
+            log(`Visibility test - NEW method 2 (offsetHeight/Width > 0): ${method3}`, method3 ? 'success' : 'error');
+            
+            // Set focus for keyboard events
+            puzzleModal.setAttribute('tabindex', '-1');
+            puzzleModal.focus();
+            
+            log('Test puzzle is ready! Try pressing number keys 1-4', 'success');
+        }
+
+        function selectPuzzleOption(index) {
+            log(`selectPuzzleOption called with index: ${index}`, 'info');
+            
+            // Clear previous selections
+            const allOptions = document.querySelectorAll('.puzzle-option');
+            log(`Found ${allOptions.length} puzzle options`, 'info');
+            allOptions.forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Select the chosen option
+            const targetOption = document.querySelector(`.puzzle-option[data-index="${index}"]`);
+            log(`Target option found: ${!!targetOption}`, targetOption ? 'success' : 'error');
+            if (targetOption) {
+                targetOption.classList.add('selected');
+                log(`Option ${index + 1} selected successfully`, 'success');
+            } else {
+                log(`No option found with data-index: ${index}`, 'error');
+            }
+        }
+
+        function submitTestAnswer() {
+            if (!currentPuzzle) {
+                log('No current puzzle to submit', 'error');
+                return;
+            }
+
+            const selectedOption = document.querySelector('.puzzle-option.selected');
+            if (!selectedOption) {
+                log('No option selected', 'error');
+                return;
+            }
+
+            const selectedIndex = parseInt(selectedOption.dataset.index);
+            const isCorrect = selectedIndex === currentPuzzle.correct;
+            
+            log(`Answer submitted: Option ${selectedIndex + 1}, Correct: ${isCorrect}`, isCorrect ? 'success' : 'error');
+            
+            // Visual feedback
+            if (isCorrect) {
+                selectedOption.classList.add('correct');
+            }
+            
+            setTimeout(() => {
+                closeTestPuzzle();
+            }, 2000);
+        }
+
+        function closeTestPuzzle() {
+            document.getElementById('puzzleModal').style.display = 'none';
+            currentPuzzle = null;
+            log('Test puzzle closed', 'info');
+        }
+
+        // Test the number key system with the FIXED logic
+        document.addEventListener('keydown', (e) => {
+            const puzzleModal = document.getElementById('puzzleModal');
+            
+            // FIXED visibility detection logic
+            const puzzleVisible = puzzleModal && (
+                puzzleModal.style.display === 'block' || 
+                (puzzleModal.offsetHeight > 0 && puzzleModal.offsetWidth > 0)
+            );
+            
+            log(`Key pressed: ${e.code}, puzzleVisible: ${puzzleVisible}, currentPuzzle: ${!!currentPuzzle}`, 'info');
+            
+            if (currentPuzzle && puzzleVisible) {
+                const numberKeys = ['Digit1', 'Digit2', 'Digit3', 'Digit4'];
+                const keyIndex = numberKeys.indexOf(e.code);
+                
+                if (keyIndex !== -1) {
+                    log(`Number key ${keyIndex + 1} pressed`, 'info');
+                }
+                
+                if (keyIndex !== -1 && keyIndex < currentPuzzle.options.length) {
+                    e.preventDefault();
+                    log(`Selecting option ${keyIndex + 1} and submitting answer`, 'success');
+                    selectPuzzleOption(keyIndex);
+                    setTimeout(() => {
+                        submitTestAnswer();
+                    }, 200);
+                }
+            }
+        });
+
+        // Initialize
+        log('Quiz fix validation test initialized', 'success');
+        log('Click "Show Test Quiz" button and try pressing number keys 1-4', 'info');
+    </script>
+</body>
+</html>

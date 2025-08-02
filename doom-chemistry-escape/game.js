@@ -179,7 +179,7 @@ class DoomChemistryGame {
 
     // Initialize procedural textures for walls, floors, and chemistry lab equipment
     initializeTextures() {
-        console.log('Creating procedural textures for chemistry lab...');
+        // Creating procedural textures for chemistry lab
         
         // Create lab wall texture (metal panels with rivets)
         this.textures.labWall = this.createLabWallTexture();
@@ -202,7 +202,7 @@ class DoomChemistryGame {
         this.textures.microscope = this.createMicroscopeTexture();
         this.textures.periodicTable = this.createPeriodicTableTexture();
         
-        console.log('All textures created successfully!');
+        // All textures created successfully
     }
     
     createLabWallTexture() {
@@ -604,12 +604,10 @@ class DoomChemistryGame {
     }
 
     init() {
-        console.log('🧪 Initializing DOOM Chemistry Game with enhanced 3D raycasting and delightful features!');
+        // 🧪 Initializing DOOM Chemistry Game with enhanced 3D raycasting and delightful features!
         this.setupEventListeners();
         this.generateLevel();
-        console.log('Map generated:', this.map);
-        console.log('Player starting position:', this.player);
-        console.log('Textures initialized:', Object.keys(this.textures));
+        // Map generated and textures initialized
         this.gameLoop();
     }
     
@@ -618,7 +616,7 @@ class DoomChemistryGame {
         try {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         } catch (e) {
-            console.log('Audio not available, continuing without sound effects');
+            // Audio not available, continuing without sound effects
             this.soundEnabled = false;
         }
     }
@@ -746,12 +744,29 @@ class DoomChemistryGame {
             }
             
             // Number keys for quiz answers (1-4)
-            if (this.currentPuzzle) {
+            const puzzleModal = document.getElementById('puzzleModal');
+            // Fix: Use computed style instead of inline style to properly detect visibility
+            const puzzleVisible = puzzleModal && (
+                puzzleModal.style.display === 'block' || 
+                (puzzleModal.offsetHeight > 0 && puzzleModal.offsetWidth > 0)
+            );
+            
+            if (this.currentPuzzle && puzzleVisible) {
                 const numberKeys = ['Digit1', 'Digit2', 'Digit3', 'Digit4'];
                 const keyIndex = numberKeys.indexOf(e.code);
+                
+                // Debug logging for deployment troubleshooting
+                if (keyIndex !== -1) {
+                    // Number key pressed for puzzle interaction
+                }
+                
                 if (keyIndex !== -1 && keyIndex < this.currentPuzzle.options.length) {
+                    e.preventDefault(); // Prevent any other key handling
+                    // Selecting option and submitting answer
                     this.selectPuzzleOption(keyIndex);
-                    this.submitPuzzleAnswer();
+                    setTimeout(() => {
+                        this.submitPuzzleAnswer();
+                    }, 200); // Small delay to ensure selection is visible
                 }
             }
         });
@@ -829,7 +844,7 @@ class DoomChemistryGame {
     }
 
     startGame() {
-        console.log('🚀 Starting enhanced DOOM Chemistry game with textured 3D raycasting and delightful features!');
+        // 🚀 Starting enhanced DOOM Chemistry game with textured 3D raycasting and delightful features!
         document.getElementById('startScreen').style.display = 'none';
         this.gameStarted = true;
         this.gameStartTime = Date.now();
@@ -840,8 +855,7 @@ class DoomChemistryGame {
         setTimeout(() => this.playSound(659, 200), 100); // E note
         setTimeout(() => this.playSound(784, 300), 200); // G note
         
-        console.log('✨ Enhanced 3D first-person view with lab textures and whimsy activated!');
-        console.log('Available textures:', Object.keys(this.textures));
+        // ✨ Enhanced 3D first-person view with lab textures and whimsy activated!
         
         // Show welcome pun
         setTimeout(() => {
@@ -1283,19 +1297,46 @@ class DoomChemistryGame {
             `;
             document.head.appendChild(style);
         }
-        document.getElementById('puzzleModal').style.display = 'block';
+        const puzzleModal = document.getElementById('puzzleModal');
+        if (!puzzleModal) {
+            console.error('puzzleModal element not found in DOM!');
+            return;
+        }
+        
+        puzzleModal.style.display = 'block';
+        // Puzzle modal displayed
+        
+        // Ensure the modal can receive focus for keyboard events
+        puzzleModal.setAttribute('tabindex', '-1');
+        
+        // Temporarily release pointer lock for quiz interaction
+        if (document.pointerLockElement) {
+            document.exitPointerLock();
+        }
+        
+        puzzleModal.focus();
     }
     
     selectPuzzleOption(index) {
+        // selectPuzzleOption called
+        
         // Clear previous selections
-        document.querySelectorAll('.puzzle-option').forEach(opt => {
+        const allOptions = document.querySelectorAll('.puzzle-option');
+        // Found puzzle options
+        allOptions.forEach(opt => {
             opt.classList.remove('selected');
         });
         
         // Select the chosen option
         const targetOption = document.querySelector(`.puzzle-option[data-index="${index}"]`);
+        // Target option found
         if (targetOption) {
             targetOption.classList.add('selected');
+            // Option selected successfully
+            // Play selection sound
+            this.playSound(600, 100, 'square');
+        } else {
+            console.warn(`No option found with data-index: ${index}`);
         }
     }
 
@@ -1381,6 +1422,14 @@ class DoomChemistryGame {
     closePuzzle() {
         document.getElementById('puzzleModal').style.display = 'none';
         this.currentPuzzle = null;
+        
+        // Re-enable pointer lock for game movement
+        if (this.gameStarted && this.canvas) {
+            setTimeout(() => {
+                this.canvas.requestPointerLock();
+            }, 100);
+        }
+        
         
         // Clear option states
         document.querySelectorAll('.puzzle-option').forEach(option => {

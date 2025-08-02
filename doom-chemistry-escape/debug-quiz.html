@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz Number Key Debug Test</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #000; color: #00ff00; padding: 20px; }
+        .puzzle-option { 
+            display: flex; align-items: center; padding: 12px 15px; margin: 8px 0;
+            background: linear-gradient(135deg, #2a2a2a, #3a3a3a); border: 2px solid #555;
+            border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
+        }
+        .option-number {
+            background: linear-gradient(135deg, #4ecdc4, #45b7d1); color: white;
+            border-radius: 50%; width: 28px; height: 28px; display: flex;
+            align-items: center; justify-content: center; font-weight: bold;
+            font-size: 14px; margin-right: 12px; flex-shrink: 0;
+        }
+        .puzzle-option.selected {
+            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+            border-color: #4ecdc4; color: white;
+        }
+        .debug { background: #333; padding: 10px; margin: 10px 0; border: 1px solid #666; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Quiz Number Key Debug Test</h1>
+    
+    <div class="debug">
+        <h3>Debug Output:</h3>
+        <div id="debugOutput"></div>
+    </div>
+    
+    <div id="testQuiz">
+        <h2>Test Chemistry Question</h2>
+        <div>What is the atomic number of Carbon?</div>
+        <div style="margin: 10px 0; color: #4ecdc4; text-align: center;">
+            🎮 Press number keys 1-4 to select your answer instantly! 🎮
+        </div>
+        
+        <div class="puzzle-option" data-index="0">
+            <span class="option-number">1</span> 12
+        </div>
+        <div class="puzzle-option" data-index="1">
+            <span class="option-number">2</span> 6
+        </div>
+        <div class="puzzle-option" data-index="2">
+            <span class="option-number">3</span> 8
+        </div>
+        <div class="puzzle-option" data-index="3">
+            <span class="option-number">4</span> 14
+        </div>
+    </div>
+
+    <script>
+        const debugDiv = document.getElementById('debugOutput');
+        
+        function addDebug(message) {
+            const time = new Date().toLocaleTimeString();
+            debugDiv.innerHTML += `<div>[${time}] ${message}</div>`;
+            debugDiv.scrollTop = debugDiv.scrollHeight;
+        }
+        
+        function selectPuzzleOption(index) {
+            addDebug(`selectPuzzleOption called with index: ${index}`);
+            
+            // Clear previous selections
+            const allOptions = document.querySelectorAll('.puzzle-option');
+            addDebug(`Found puzzle options: ${allOptions.length}`);
+            allOptions.forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Select the chosen option
+            const targetOption = document.querySelector(`.puzzle-option[data-index="${index}"]`);
+            addDebug(`Target option found: ${!!targetOption}`);
+            if (targetOption) {
+                targetOption.classList.add('selected');
+                addDebug(`Option ${index + 1} selected successfully`);
+            } else {
+                addDebug(`No option found with data-index: ${index}`);
+            }
+        }
+        
+        // Test the number key system
+        document.addEventListener('keydown', (e) => {
+            addDebug(`Key pressed: ${e.code}`);
+            
+            const numberKeys = ['Digit1', 'Digit2', 'Digit3', 'Digit4'];
+            const keyIndex = numberKeys.indexOf(e.code);
+            addDebug(`Number key check: keyIndex = ${keyIndex}`);
+            
+            if (keyIndex !== -1 && keyIndex < 4) {
+                addDebug(`Selecting option: ${keyIndex}`);
+                e.preventDefault();
+                selectPuzzleOption(keyIndex);
+            }
+        });
+        
+        addDebug('Debug test initialized. Try pressing number keys 1-4!');
+    </script>
+</body>
+</html>

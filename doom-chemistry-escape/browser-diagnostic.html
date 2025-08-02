@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOOM Chemistry Escape - Browser Compatibility Check</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #000, #001100);
+            color: #00ff00;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #ff0000;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        h2 {
+            color: #00ff00;
+            border-bottom: 2px solid #00ff00;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+
+        .diagnostic-section {
+            background: rgba(0, 50, 0, 0.3);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 1px solid #006600;
+        }
+
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .test-item:last-child {
+            border-bottom: none;
+        }
+
+        .test-name {
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .test-result {
+            margin-left: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .status-checking {
+            background: #666;
+            color: #fff;
+        }
+
+        .status-pass {
+            background: #006600;
+            color: #00ff00;
+        }
+
+        .status-warn {
+            background: #663300;
+            color: #ff9900;
+        }
+
+        .status-fail {
+            background: #660000;
+            color: #ff0000;
+        }
+
+        .overall-status {
+            text-align: center;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .status-excellent {
+            background: rgba(0, 100, 0, 0.3);
+            border: 2px solid #00ff00;
+            color: #00ff00;
+        }
+
+        .status-good {
+            background: rgba(100, 100, 0, 0.3);
+            border: 2px solid #ffff00;
+            color: #ffff00;
+        }
+
+        .status-poor {
+            background: rgba(100, 0, 0, 0.3);
+            border: 2px solid #ff0000;
+            color: #ff0000;
+        }
+
+        .recommendations {
+            background: rgba(0, 0, 50, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #0066ff;
+            margin: 20px 0;
+        }
+
+        .recommendation-item {
+            margin: 10px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .recommendation-item::before {
+            content: "💡";
+            position: absolute;
+            left: 0;
+        }
+
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            background: #006600;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 0 10px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #008800;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .browser-info {
+            background: rgba(50, 50, 50, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #666;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .details-toggle {
+            background: none;
+            border: 1px solid #666;
+            color: #888;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .details-toggle:hover {
+            color: #00ff00;
+            border-color: #00ff00;
+        }
+
+        .test-details {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .test-details.show {
+            display: block;
+        }
+
+        .icon {
+            display: inline-block;
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .checking {
+            animation: pulse 1s infinite;
+        }
+
+        .mobile-warning {
+            background: rgba(100, 50, 0, 0.3);
+            border: 1px solid #ff9900;
+            color: #ff9900;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .test-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .test-result {
+                margin-left: 0;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 DOOM CHEMISTRY ESCAPE 🧪</h1>
+        <div class="subtitle">Browser Compatibility Diagnostic Tool</div>
+        
+        <div class="browser-info" id="browser-info">
+            <h3>📱 Your Browser Information</h3>
+            <div id="browser-details">Detecting browser...</div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div class="diagnostic-section">
+            <h2>🔍 Compatibility Tests</h2>
+            <div id="test-results">
+                <!-- Test results will be populated here -->
+            </div>
+        </div>
+
+        <div class="overall-status" id="overall-status">
+            <div class="checking">🔄 Running compatibility tests...</div>
+        </div>
+
+        <div class="recommendations" id="recommendations" style="display: none;">
+            <h3>💡 Recommendations</h3>
+            <div id="recommendation-list"></div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn" onclick="runTests()" id="retest-btn" style="display: none;">
+                🔄 Run Tests Again
+            </button>
+            <a href="index.html" class="btn" id="play-btn" style="display: none;">
+                🎮 Play Game
+            </a>
+            <button class="btn" onclick="showDetailedReport()" id="details-btn" style="display: none;">
+                📊 Detailed Report
+            </button>
+        </div>
+
+        <div class="mobile-warning" id="mobile-warning" style="display: none;">
+            📱 <strong>Mobile Device Detected:</strong> The game is optimized for desktop/laptop computers. 
+            Mobile performance may be limited.
+        </div>
+    </div>
+
+    <script>
+        class BrowserDiagnostic {
+            constructor() {
+                this.tests = [];
+                this.testResults = {};
+                this.overallScore = 0;
+                this.totalTests = 0;
+                this.browserInfo = this.detectBrowser();
+                this.isPrivateMode = false;
+                this.isMobile = this.detectMobile();
+                
+                this.testDefinitions = [
+                    {
+                        name: 'HTML5 Canvas Support',
+                        key: 'canvas',
+                        critical: true,
+                        test: () => this.testCanvas()
+                    },
+                    {
+                        name: 'JavaScript ES6+ Support',
+                        key: 'es6',
+                        critical: true,
+                        test: () => this.testES6()
+                    },
+                    {
+                        name: 'Local Storage Access',
+                        key: 'localStorage',
+                        critical: false,
+                        test: () => this.testLocalStorage()
+                    },
+                    {
+                        name: 'Session Storage Access',
+                        key: 'sessionStorage',
+                        critical: false,
+                        test: () => this.testSessionStorage()
+                    },
+                    {
+                        name: 'Pointer Lock API',
+                        key: 'pointerLock',
+                        critical: false,
+                        test: () => this.testPointerLock()
+                    },
+                    {
+                        name: 'Audio Context API',
+                        key: 'audioContext',
+                        critical: false,
+                        test: () => this.testAudioContext()
+                    },
+                    {
+                        name: 'Performance API',
+                        key: 'performance',
+                        critical: false,
+                        test: () => this.testPerformance()
+                    },
+                    {
+                        name: 'Keyboard Event Support',
+                        key: 'keyboard',
+                        critical: true,
+                        test: () => this.testKeyboard()
+                    },
+                    {
+                        name: 'Mouse Event Support',
+                        key: 'mouse',
+                        critical: true,
+                        test: () => this.testMouse()
+                    },
+                    {
+                        name: 'RequestAnimationFrame',
+                        key: 'animationFrame',
+                        critical: true,
+                        test: () => this.testAnimationFrame()
+                    }
+                ];
+
+                this.init();
+            }
+
+            detectBrowser() {
+                const ua = navigator.userAgent;
+                let browser = { name: 'Unknown', version: 'Unknown', engine: 'Unknown' };
+
+                if (ua.includes('Chrome') && !ua.includes('Edg')) {
+                    browser.name = 'Chrome';
+                    browser.engine = 'Blink';
+                    const match = ua.match(/Chrome\/(\d+)/);
+                    browser.version = match ? match[1] : 'Unknown';
+                } else if (ua.includes('Edg')) {
+                    browser.name = 'Microsoft Edge';
+                    browser.engine = 'Blink';
+                    const match = ua.match(/Edg\/(\d+)/);
+                    browser.version = match ? match[1] : 'Unknown';
+                } else if (ua.includes('Firefox')) {
+                    browser.name = 'Firefox';
+                    browser.engine = 'Gecko';
+                    const match = ua.match(/Firefox\/(\d+)/);
+                    browser.version = match ? match[1] : 'Unknown';
+                } else if (ua.includes('Safari') && !ua.includes('Chrome')) {
+                    browser.name = 'Safari';
+                    browser.engine = 'WebKit';
+                    const match = ua.match(/Version\/(\d+)/);
+                    browser.version = match ? match[1] : 'Unknown';
+                }
+
+                return browser;
+            }
+
+            detectMobile() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+
+            async detectPrivateMode() {
+                try {
+                    // Multiple detection methods
+                    const tests = [];
+                    
+                    // Storage quota test
+                    if (navigator.storage && navigator.storage.estimate) {
+                        tests.push(navigator.storage.estimate().then(estimate => estimate.quota < 120000000));
+                    }
+                    
+                    // LocalStorage behavior test
+                    tests.push(new Promise((resolve) => {
+                        try {
+                            localStorage.setItem('test', 'test');
+                            localStorage.removeItem('test');
+                            resolve(false);
+                        } catch (e) {
+                            resolve(true);
+                        }
+                    }));
+
+                    const results = await Promise.all(tests);
+                    return results.some(result => result);
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            init() {
+                this.displayBrowserInfo();
+                this.setupTestUI();
+                this.runAllTests();
+            }
+
+            displayBrowserInfo() {
+                const browserDetails = document.getElementById('browser-details');
+                const privateModeText = this.isPrivateMode ? ' (Private/Incognito Mode)' : '';
+                const mobileText = this.isMobile ? ' on Mobile Device' : '';
+                
+                browserDetails.innerHTML = `
+                    <div><strong>Browser:</strong> ${this.browserInfo.name} ${this.browserInfo.version}</div>
+                    <div><strong>Engine:</strong> ${this.browserInfo.engine}${privateModeText}${mobileText}</div>
+                    <div><strong>User Agent:</strong> <small>${navigator.userAgent}</small></div>
+                    <div><strong>Screen:</strong> ${screen.width}x${screen.height}</div>
+                    <div><strong>Viewport:</strong> ${window.innerWidth}x${window.innerHeight}</div>
+                `;
+
+                if (this.isMobile) {
+                    document.getElementById('mobile-warning').style.display = 'block';
+                }
+            }
+
+            setupTestUI() {
+                const testResults = document.getElementById('test-results');
+                testResults.innerHTML = '';
+
+                this.testDefinitions.forEach(testDef => {
+                    const testItem = document.createElement('div');
+                    testItem.className = 'test-item';
+                    testItem.innerHTML = `
+                        <div class="test-name">
+                            <span class="icon">${testDef.critical ? '🔴' : '🔶'}</span>
+                            ${testDef.name}
+                            <button class="details-toggle" onclick="toggleDetails('${testDef.key}')">Details</button>
+                        </div>
+                        <div class="test-result status-checking" id="result-${testDef.key}">
+                            Checking...
+                        </div>
+                        <div class="test-details" id="details-${testDef.key}">
+                            <div id="details-content-${testDef.key}">Running test...</div>
+                        </div>
+                    `;
+                    testResults.appendChild(testItem);
+                });
+            }
+
+            async runAllTests() {
+                this.isPrivateMode = await this.detectPrivateMode();
+                this.displayBrowserInfo(); // Update with private mode info
+
+                let completedTests = 0;
+                const totalTests = this.testDefinitions.length;
+
+                for (const testDef of this.testDefinitions) {
+                    try {
+                        const result = await testDef.test();
+                        this.testResults[testDef.key] = result;
+                        this.displayTestResult(testDef.key, result);
+                        
+                        completedTests++;
+                        this.updateProgress((completedTests / totalTests) * 100);
+                        
+                        // Small delay to show progress
+                        await new Promise(resolve => setTimeout(resolve, 200));
+                    } catch (error) {
+                        this.testResults[testDef.key] = {
+                            passed: false,
+                            message: `Test failed: ${error.message}`,
+                            details: error.toString()
+                        };
+                        this.displayTestResult(testDef.key, this.testResults[testDef.key]);
+                        completedTests++;
+                        this.updateProgress((completedTests / totalTests) * 100);
+                    }
+                }
+
+                this.calculateOverallScore();
+                this.displayOverallStatus();
+                this.generateRecommendations();
+                this.showActionButtons();
+            }
+
+            updateProgress(percentage) {
+                document.getElementById('progress-fill').style.width = percentage + '%';
+            }
+
+            displayTestResult(testKey, result) {
+                const resultElement = document.getElementById(`result-${testKey}`);
+                const detailsElement = document.getElementById(`details-content-${testKey}`);
+                
+                resultElement.className = 'test-result ' + (
+                    result.passed ? 'status-pass' :
+                    result.warning ? 'status-warn' : 'status-fail'
+                );
+                resultElement.textContent = result.passed ? 'PASS' : 
+                                          result.warning ? 'WARN' : 'FAIL';
+
+                detailsElement.innerHTML = `
+                    <div><strong>Status:</strong> ${result.message}</div>
+                    ${result.details ? `<div><strong>Details:</strong> ${result.details}</div>` : ''}
+                    ${result.recommendation ? `<div><strong>Recommendation:</strong> ${result.recommendation}</div>` : ''}
+                `;
+            }
+
+            calculateOverallScore() {
+                let passedCritical = 0;
+                let totalCritical = 0;
+                let passedAll = 0;
+                let totalAll = this.testDefinitions.length;
+
+                this.testDefinitions.forEach(testDef => {
+                    const result = this.testResults[testDef.key];
+                    if (result.passed) passedAll++;
+                    
+                    if (testDef.critical) {
+                        totalCritical++;
+                        if (result.passed) passedCritical++;
+                    }
+                });
+
+                this.criticalScore = (passedCritical / totalCritical) * 100;
+                this.overallScore = (passedAll / totalAll) * 100;
+            }
+
+            displayOverallStatus() {
+                const statusElement = document.getElementById('overall-status');
+                
+                let status, message, className;
+                
+                if (this.criticalScore === 100 && this.overallScore >= 80) {
+                    status = '✅ EXCELLENT';
+                    message = 'Your browser fully supports the DOOM Chemistry Escape Room!';
+                    className = 'status-excellent';
+                } else if (this.criticalScore === 100 && this.overallScore >= 60) {
+                    status = '⚠️ GOOD';
+                    message = 'Your browser supports the game with some limitations.';
+                    className = 'status-good';
+                } else if (this.criticalScore >= 75) {
+                    status = '⚠️ LIMITED';
+                    message = 'The game may work but with reduced functionality.';
+                    className = 'status-good';
+                } else {
+                    status = '❌ POOR';
+                    message = 'Your browser may not support the game properly.';
+                    className = 'status-poor';
+                }
+
+                statusElement.innerHTML = `
+                    <div>${status}</div>
+                    <div style="font-size: 0.7em; margin-top: 10px;">${message}</div>
+                    <div style="font-size: 0.6em; margin-top: 10px; color: #888;">
+                        Overall Score: ${Math.round(this.overallScore)}% | Critical Features: ${Math.round(this.criticalScore)}%
+                    </div>
+                `;
+                statusElement.className = 'overall-status ' + className;
+            }
+
+            generateRecommendations() {
+                const recommendations = [];
+                const criticalIssues = [];
+
+                // Check for critical issues
+                this.testDefinitions.forEach(testDef => {
+                    const result = this.testResults[testDef.key];
+                    if (testDef.critical && !result.passed) {
+                        criticalIssues.push(testDef.name);
+                    }
+                });
+
+                // Browser-specific recommendations
+                if (this.browserInfo.name === 'Safari' && this.isPrivateMode) {
+                    recommendations.push('Safari Private Browsing severely limits game functionality. Consider using regular browsing or switching to Chrome/Firefox.');
+                }
+
+                if (this.isPrivateMode) {
+                    recommendations.push('Private/Incognito mode detected. Some features like progress saving may not work.');
+                    recommendations.push('For the best experience, consider using regular browsing mode.');
+                }
+
+                if (!this.testResults.pointerLock?.passed) {
+                    recommendations.push('Mouse look controls may not work. You can still play using keyboard controls.');
+                }
+
+                if (!this.testResults.audioContext?.passed) {
+                    recommendations.push('Audio may not work automatically. Click the audio activation button when you start the game.');
+                }
+
+                if (this.isMobile) {
+                    recommendations.push('Mobile devices have limited support. Use landscape orientation and external keyboard if available.');
+                }
+
+                if (criticalIssues.length > 0) {
+                    recommendations.unshift(`Critical browser features missing: ${criticalIssues.join(', ')}. Consider updating your browser.`);
+                }
+
+                if (recommendations.length > 0) {
+                    const recommendationsElement = document.getElementById('recommendations');
+                    const recommendationList = document.getElementById('recommendation-list');
+                    
+                    recommendationList.innerHTML = recommendations.map(rec => 
+                        `<div class="recommendation-item">${rec}</div>`
+                    ).join('');
+                    
+                    recommendationsElement.style.display = 'block';
+                }
+            }
+
+            showActionButtons() {
+                document.getElementById('retest-btn').style.display = 'inline-block';
+                document.getElementById('details-btn').style.display = 'inline-block';
+                
+                if (this.criticalScore >= 75) {
+                    document.getElementById('play-btn').style.display = 'inline-block';
+                }
+            }
+
+            // Test implementations
+            async testCanvas() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    const ctx2d = canvas.getContext('2d');
+                    const webgl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                    
+                    if (!ctx2d) {
+                        return {
+                            passed: false,
+                            message: 'HTML5 Canvas 2D context not supported',
+                            details: 'The game requires Canvas 2D support for rendering.'
+                        };
+                    }
+
+                    return {
+                        passed: true,
+                        message: 'Canvas 2D and WebGL support detected',
+                        details: `2D Context: ✅ | WebGL: ${webgl ? '✅' : '❌'}`
+                    };
+                } catch (e) {
+                    return {
+                        passed: false,
+                        message: 'Canvas test failed',
+                        details: e.message
+                    };
+                }
+            }
+
+            async testES6() {
+                try {
+                    // Test key ES6+ features used by the game
+                    const features = {
+                        'Arrow Functions': () => (() => true)(),
+                        'Classes': () => { class Test {}; return true; },
+                        'const/let': () => { const test = 1; let test2 = 2; return true; },
+                        'Template Literals': () => `test ${1}` === 'test 1',
+                        'Destructuring': () => { const [a] = [1]; return a === 1; },
+                        'Promises': () => typeof Promise !== 'undefined'
+                    };
+
+                    const results = {};
+                    let passed = 0;
+                    
+                    for (const [feature, test] of Object.entries(features)) {
+                        try {
+                            results[feature] = test();
+                            if (results[feature]) passed++;
+                        } catch (e) {
+                            results[feature] = false;
+                        }
+                    }
+
+                    const total = Object.keys(features).length;
+                    const allPassed = passed === total;
+
+                    return {
+                        passed: allPassed,
+                        message: allPassed ? 'All ES6+ features supported' : `${passed}/${total} ES6+ features supported`,
+                        details: Object.entries(results).map(([feature, supported]) => 
+                            `${feature}: ${supported ? '✅' : '❌'}`
+                        ).join(' | ')
+                    };
+                } catch (e) {
+                    return {
+                        passed: false,
+                        message: 'ES6+ test failed',
+                        details: e.message
+                    };
+                }
+            }
+
+            async testLocalStorage() {
+                try {
+                    const testKey = 'diagnostic-test-' + Date.now();
+                    localStorage.setItem(testKey, 'test');
+                    const retrieved = localStorage.getItem(testKey);
+                    localStorage.removeItem(testKey);
+                    
+                    const works = retrieved === 'test';
+                    
+                    return {
+                        passed: works,
+                        warning: this.isPrivateMode && works,
+                        message: works ? 'Local Storage functional' : 'Local Storage blocked',
+                        details: this.isPrivateMode ? 'Private mode detected - data may not persist between sessions' : 'Storage available for game settings and progress'
+                    };
+                } catch (e) {
+                    return {
+                        passed: false,
+                        message: 'Local Storage blocked or unavailable',
+                        details: e.message,
+                        recommendation: 'Game progress and settings cannot be saved'
+                    };
+                }
+            }
+
+            async testSessionStorage() {
+                try {
+                    const testKey = 'diagnostic-test-' + Date.now();
+                    sessionStorage.setItem(testKey, 'test');
+                    const retrieved = sessionStorage.getItem(testKey);
+                    sessionStorage.removeItem(testKey);
+                    
+                    const works = retrieved === 'test';
+                    
+                    return {
+                        passed: works,
+                        message: works ? 'Session Storage functional' : 'Session Storage blocked',
+                        details: works ? 'Can store temporary game data during session' : 'Cannot store temporary data'
+                    };
+                } catch (e) {
+                    return {
+                        passed: false,
+                        message: 'Session Storage unavailable',
+                        details: e.message
+                    };
+                }
+            }
+
+            async testPointerLock() {
+                try {
+                    const hasRequest = 'requestPointerLock' in document.body ||
+                                      'mozRequestPointerLock' in document.body ||
+                                      'webkitRequestPointerLock' in document.body;
+                    
+                    const hasExit = 'exitPointerLock' in document ||
+                                   'mozExitPointerLock' in document ||
+                                   'webkitExitPointerLock' in document;
+
+                    const supported = hasRequest && hasExit;
+                    const warning = this.isPrivateMode && this.browserInfo.name === 'Safari';
+
+                    return {
+                        passed: supported,
+                        warning: warning,
+                        message: supported ? 'Pointer Lock API available' : 'Pointer Lock API not supported',
+                        details: `Request: ${hasRequest ? '✅' : '❌'} | Exit: ${hasExit ? '✅' : '❌'}`,
+                        recommendation: !supported ? 'Mouse look controls will not work - use keyboard controls' : 
+                                      warning ? 'May be blocked in Safari private browsing' : null
+                    };
+                } catch (e) {
+                    return {
+                        passed: false,
+                        message: 'Pointer Lock test failed',
+                        details: e.message
+                    };
+                }
+            }
+
+            async testAudioContext() {
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    
+                    if (!AudioContext) {
+                        return {
+                            passed: false,
+                            message: 'Web Audio API not supported',
+                            details: 'Browser does not support AudioContext',
+                            recommendation: 'Audio effects and music will not work'
+                        };
+                    }
+
+                    let contextCreated = false;
+                    let contextState = 'unknown';
+                    let errorMessage = null;
+
+                    try {
+                        const testContext = new AudioContext();
+                        contextCreated = true;
+                        contextState = testContext.state;
+                        testContext.close().catch(() => {});
+                    } catch (e) {
+                        errorMessage = e.message;
+                    }
+
+                    const warning = contextState === 'suspended';
+
+                    return {
+                        passed: contextCreated,
+                        warning: warning,
+                        message: contextCreated ? `Audio Context ${contextState}` : 'Audio Context creation failed',
+                        details: errorMessage || `Initial state: ${contextState}`,
+                        recommendation: warning ? 'Audio will require user interaction to activate' : 
+                                      !contextCreated ? 'Audio functionality will not work' : null
+                    };
+                } catch (e) {
+                    return {
+                        passed: false,
+                        message: 'Audio Context test failed',
+                        details: e.message
+                    };
+                }
+            }
+
+            async testPerformance() {
+                try {
+                    const hasPerformance = 'performance' in window;
+                    const hasNow = hasPerformance && 'now' in performance;
+                    const hasMemory = hasPerformance && 'memory' in performance;
+                    
+                    return {
+                        passed: hasNow,
+                        message: hasNow ? 'Performance API available' : 'Performance API limited',
+                        details: `performance.now(): ${hasNow ? '✅' : '❌'} | memory: ${hasMemory ? '✅' : '❌'}`
+                    };
+                } catch (e) {
+                    return {
+                        passed: false,
+                        message: 'Performance API test failed',
+                        details: e.message
+                    };
+                }
+            }
+
+            async testKeyboard() {
+                try {
+                    // Test keyboard event creation
+                    const testEvent = new KeyboardEvent('keydown', {
+                        key: 'w',
+                        code: 'KeyW',
+                        keyCode: 87
+                    });
+                    
+                    const hasModernAPI = testEvent.code === 'KeyW';
+                    const hasLegacyAPI = testEvent.keyCode === 87;
+                    
+                    return {
+                        passed: hasModernAPI || hasLegacyAPI,
+                        message: 'Keyboard events supported',
+                        details: `Modern API (code): ${hasModernAPI ? '✅' : '❌'} | Legacy API (keyCode): ${hasLegacyAPI ? '✅' : '❌'}`
+                    };
+                } catch (e) {
+                    return {
+                        passed: false,
+                        message: 'Keyboard events not supported',
+                        details: e.message,
+                        recommendation: 'Game controls will not work'
+                    };
+                }
+            }
+
+            async testMouse() {
+                try {
+                    const testEvent = new MouseEvent('click', {
+                        buttons: 1,
+                        clientX: 100,
+                        clientY: 100
+                    });
+                    
+                    const hasMouseEvents = testEvent.type === 'click';
+                    const hasMovementX = 'movementX' in testEvent;
+                    
+                    return {
+                        passed: hasMouseEvents,
+                        message: 'Mouse events supported',
+                        details: `Basic events: ${hasMouseEvents ? '✅' : '❌'} | Movement tracking: ${hasMovementX ? '✅' : '❌'}`
+                    };
+                } catch (e) {
+                    return {
+                        passed: false,
+                        message: 'Mouse events not supported',
+                        details: e.message
+                    };
+                }
+            }
+
+            async testAnimationFrame() {
+                try {
+                    const hasRAF = 'requestAnimationFrame' in window;
+                    const hasCAF = 'cancelAnimationFrame' in window;
+                    
+                    return {
+                        passed: hasRAF,
+                        message: hasRAF ? 'Animation Frame API available' : 'Animation Frame API missing',
+                        details: `requestAnimationFrame: ${hasRAF ? '✅' : '❌'} | cancelAnimationFrame: ${hasCAF ? '✅' : '❌'}`,
+                        recommendation: !hasRAF ? 'Game animations may not work smoothly' : null
+                    };
+                } catch (e) {
+                    return {
+                        passed: false,
+                        message: 'Animation Frame test failed',
+                        details: e.message
+                    };
+                }
+            }
+        }
+
+        // Global functions
+        function toggleDetails(testKey) {
+            const details = document.getElementById(`details-${testKey}`);
+            details.classList.toggle('show');
+        }
+
+        function runTests() {
+            location.reload(); // Simple way to rerun all tests
+        }
+
+        function showDetailedReport() {
+            const report = {
+                browser: diagnostic.browserInfo,
+                isMobile: diagnostic.isMobile,
+                isPrivateMode: diagnostic.isPrivateMode,
+                overallScore: diagnostic.overallScore,
+                criticalScore: diagnostic.criticalScore,
+                testResults: diagnostic.testResults,
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log('🔬 Detailed Diagnostic Report:', report);
+            alert('Detailed report logged to browser console (F12 → Console tab)');
+        }
+
+        // Initialize diagnostic when page loads
+        let diagnostic;
+        window.addEventListener('load', () => {
+            diagnostic = new BrowserDiagnostic();
+        });
+    </script>
+</body>
+</html>
